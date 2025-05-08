@@ -36,7 +36,7 @@ export function Avatar(props) {
     morphTargetSmoothing: 0.5,
     script: {
       value: "welcome",
-      options: ["welcome", "pizzas"],
+      options: ["welcome", "pizzas", "faraon"],
     },
   });
 
