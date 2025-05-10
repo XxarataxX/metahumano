@@ -155,16 +155,37 @@ export function Avatar(props) {
 
   const { nodes, materials } = useGLTF("/models/646d9dcdc8a5f5bddbfac913.glb");
   const { animations: idleAnimation } = useFBX("/animations/Idle.fbx");
-  const { animations: angryAnimation } = useFBX(
-    "/animations/Angry Gesture.fbx"
-  );
-  const { animations: greetingAnimation } = useFBX(
-    "/animations/Standing Greeting.fbx"
-  );
+  const { animations: angryAnimation } = useFBX("/animations/Angry Gesture.fbx");
+  const { animations: greetingAnimation } = useFBX("/animations/Standing Greeting.fbx");
+  const { animations: AcknowledgingAnimation } = useFBX("/animations/Acknowledging.fbx");
+  const { animations: Angry2Animation } = useFBX("/animations/Angry.fbx");
+  const { animations: ClappingAnimation } = useFBX("/animations/Clapping.fbx");
+  const { animations: CockyHeadTurnAnimation } = useFBX("/animations/Cocky Head Turn.fbx");
+  const { animations: DefeatAnimation } = useFBX("/animations/Defeat.fbx");
+  const { animations: DefeatedAnimation } = useFBX("/animations/Defeated.fbx");
+  const { animations: ofensiveAnimation } = useFBX("/animations/Offensive Idle.fbx");
+  const { animations: PointForwardAnimation } = useFBX("/animations/Pointing Forward.fbx");
+  const { animations: SaluteAnimation } = useFBX("/animations/Salute.fbx");
+  const { animations: SurprisedAnimation } = useFBX("/animations/Surprised.fbx");
+  const { animations: ThoughfulHeadShakeAnimation } = useFBX("/animations/Thoughtful Head Shake.fbx");
+  const { animations: YellingAnimation } = useFBX("/animations/Yelling.fbx");
 
   idleAnimation[0].name = "Idle";
   angryAnimation[0].name = "Angry";
   greetingAnimation[0].name = "Greeting";
+  AcknowledgingAnimation[0].name = "Acknowledging"
+  Angry2Animation[0].name = "Angry2"
+  ClappingAnimation[0].name = "Clapping"
+  CockyHeadTurnAnimation[0].name = "CockyHeadTurn"
+  DefeatAnimation[0].name = "Defeat"
+  DefeatedAnimation[0].name = "Defeated"
+  ofensiveAnimation[0].name = "ofensive"
+  PointForwardAnimation[0].name = "PointForward"
+  SaluteAnimation[0].name = "Salute"
+  SurprisedAnimation[0].name = "Surprised"
+  ThoughfulHeadShakeAnimation[0].name = "ThoughfulHeadShake"
+  YellingAnimation[0].name = "Yelling"
+
 
   const [animation, setAnimation] = useState("Idle");
 

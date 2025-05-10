@@ -1,0 +1,36 @@
+{
+  "metadata": {
+    "soundFile": "C:\\Users\\Xps\\Downloads\\Rhubarb-Lip-Sync-1.14.0-Windows\\despedida3.ogg",
+    "duration": 4.36
+  },
+  "mouthCues": [
+    { "start": 0.00, "end": 0.03, "value": "X" },
+    { "start": 0.03, "end": 0.42, "value": "B" },
+    { "start": 0.42, "end": 0.63, "value": "E" },
+    { "start": 0.63, "end": 0.91, "value": "F" },
+    { "start": 0.91, "end": 0.99, "value": "A" },
+    { "start": 0.99, "end": 1.06, "value": "F" },
+    { "start": 1.06, "end": 1.13, "value": "C" },
+    { "start": 1.13, "end": 1.20, "value": "E" },
+    { "start": 1.20, "end": 1.27, "value": "F" },
+    { "start": 1.27, "end": 1.35, "value": "A" },
+    { "start": 1.35, "end": 1.40, "value": "E" },
+    { "start": 1.40, "end": 1.58, "value": "F" },
+    { "start": 1.58, "end": 1.72, "value": "B" },
+    { "start": 1.72, "end": 1.91, "value": "X" },
+    { "start": 1.91, "end": 1.99, "value": "B" },
+    { "start": 1.99, "end": 2.20, "value": "E" },
+    { "start": 2.20, "end": 2.27, "value": "F" },
+    { "start": 2.27, "end": 2.41, "value": "G" },
+    { "start": 2.41, "end": 2.55, "value": "B" },
+    { "start": 2.55, "end": 2.74, "value": "D" },
+    { "start": 2.74, "end": 2.79, "value": "C" },
+    { "start": 2.79, "end": 3.11, "value": "B" },
+    { "start": 3.11, "end": 3.25, "value": "C" },
+    { "start": 3.25, "end": 3.60, "value": "B" },
+    { "start": 3.60, "end": 3.68, "value": "A" },
+    { "start": 3.68, "end": 3.84, "value": "C" },
+    { "start": 3.84, "end": 4.05, "value": "B" },
+    { "start": 4.05, "end": 4.36, "value": "X" }
+  ]
+}

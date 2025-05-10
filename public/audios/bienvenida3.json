@@ -1,0 +1,29 @@
+{
+  "metadata": {
+    "soundFile": "C:\\Users\\Xps\\Downloads\\Rhubarb-Lip-Sync-1.14.0-Windows\\bienvenida3.ogg",
+    "duration": 3.29
+  },
+  "mouthCues": [
+    { "start": 0.00, "end": 0.03, "value": "X" },
+    { "start": 0.03, "end": 0.09, "value": "E" },
+    { "start": 0.09, "end": 0.15, "value": "B" },
+    { "start": 0.15, "end": 0.60, "value": "D" },
+    { "start": 0.60, "end": 0.73, "value": "B" },
+    { "start": 0.73, "end": 0.81, "value": "A" },
+    { "start": 0.81, "end": 1.37, "value": "B" },
+    { "start": 1.37, "end": 1.51, "value": "C" },
+    { "start": 1.51, "end": 1.58, "value": "B" },
+    { "start": 1.58, "end": 1.69, "value": "A" },
+    { "start": 1.69, "end": 1.73, "value": "B" },
+    { "start": 1.73, "end": 1.81, "value": "A" },
+    { "start": 1.81, "end": 1.86, "value": "C" },
+    { "start": 1.86, "end": 1.91, "value": "B" },
+    { "start": 1.91, "end": 2.05, "value": "C" },
+    { "start": 2.05, "end": 2.47, "value": "B" },
+    { "start": 2.47, "end": 2.54, "value": "C" },
+    { "start": 2.54, "end": 2.68, "value": "B" },
+    { "start": 2.68, "end": 2.82, "value": "E" },
+    { "start": 2.82, "end": 3.03, "value": "B" },
+    { "start": 3.03, "end": 3.29, "value": "X" }
+  ]
+}

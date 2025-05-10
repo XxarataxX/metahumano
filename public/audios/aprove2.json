@@ -1,0 +1,16 @@
+{
+  "metadata": {
+    "soundFile": "C:\\Users\\Xps\\Downloads\\Rhubarb-Lip-Sync-1.14.0-Windows\\aprove2.ogg",
+    "duration": 1.25
+  },
+  "mouthCues": [
+    { "start": 0.00, "end": 0.18, "value": "X" },
+    { "start": 0.18, "end": 0.34, "value": "B" },
+    { "start": 0.34, "end": 0.42, "value": "A" },
+    { "start": 0.42, "end": 0.48, "value": "C" },
+    { "start": 0.48, "end": 0.54, "value": "B" },
+    { "start": 0.54, "end": 0.82, "value": "E" },
+    { "start": 0.82, "end": 0.89, "value": "F" },
+    { "start": 0.89, "end": 1.25, "value": "X" }
+  ]
+}
