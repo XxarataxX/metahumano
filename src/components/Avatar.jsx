@@ -22,7 +22,7 @@ const corresponding = {
   X: "viseme_PP",
 };
 
-export function Avatar(props) {
+export function Avatar({ preguntas, ...props }) {
   const {
     playAudio,
     script,
@@ -206,6 +206,23 @@ export function Avatar(props) {
       group.current.getObjectByName("Head").lookAt(state.camera.position);
     }
   });
+
+  useEffect(() => {
+    if (!preguntas || preguntas.length === 0) return;
+
+    const primera = preguntas[0];
+    const texto = `${primera.pregunta}. 
+    A: ${primera.incisos.A}, 
+    B: ${primera.incisos.B}, 
+    C: ${primera.incisos.C}.`;
+
+    const speech = new SpeechSynthesisUtterance(texto);
+    speech.lang = "es-ES";
+    window.speechSynthesis.speak(speech);
+
+    setAnimation("Greeting"); // o cualquier otra animación
+  }, [preguntas]);
+
 
   return (
     <group {...props} dispose={null} ref={group}>
