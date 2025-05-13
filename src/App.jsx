@@ -9,40 +9,73 @@ function App() {
   const hasFetched = useRef(false);
   const [respuestas, setRespuestas] = useState([]);
   const [mostrarResultados, setMostrarResultados] = useState(false);
+  const experienceRef = useRef();
 
-  const manejarRespuesta = (respuestaUsuario) => {
-    const preguntaActualData = preguntas[preguntaActual];
-    const esCorrecta = respuestaUsuario === preguntaActualData.respuesta_correcta;
+  
+  
 
-    setRespuestas((prev) => [
-      ...prev,
-      { id: preguntaActualData.id || preguntaActual, correcta: esCorrecta },
-    ]);
+ const manejarRespuesta = (respuestaUsuario) => {
+  const preguntaActualData = preguntas[preguntaActual];
+  const esCorrecta = respuestaUsuario === preguntaActualData.respuesta_correcta;
 
-    avanzar();
-  };
+  // 🔥 Feedback INMEDIATO (sonido + animación)
+  if (esCorrecta) {
+    const randomAprove = Math.floor(Math.random() * 3) + 1;
+    experienceRef.current?.playAudioWithAnimation(`aprove${randomAprove}`);
+  } else {
+    const randomError = Math.floor(Math.random() * 3) + 1;
+    experienceRef.current?.playAudioWithAnimation(`equivocado${randomError}`);
+  }
 
-  useEffect(() => {
-    if (hasFetched.current) return;
-    hasFetched.current = true;
+  // Guarda la respuesta y avanza después de un breve delay (opcional)
+  setRespuestas((prev) => [
+    ...prev,
+    { id: preguntaActualData.id || preguntaActual, correcta: esCorrecta },
+  ]);
 
-    fetch("http://192.168.1.99:8000/generate_question/", {
-      method: "POST",
-      headers: {
-        "Content-Type": "application/json",
-      },
-      body: JSON.stringify({
-        grado: 3,
-        dificultad: "fácil",
-        materia: "español",
-        cantidad: 3,
-      }),
+  setTimeout(() => {
+    if (preguntaActual + 1 < preguntas.length) {
+      setPreguntaActual(preguntaActual + 1);
+    } else {
+      setMostrarResultados(true);
+    }
+  }, 10000); // Delay de 2 segundos para ver el feedback
+};
+
+useEffect(() => {
+  if (hasFetched.current) return;
+  hasFetched.current = true;
+
+  console.log("Iniciando solicitud a la API..."); // 1. Log cuando comienza la solicitud
+
+  fetch("http://192.168.100.93:8000/generate_question/", {
+    method: "POST",
+    headers: {
+      "Content-Type": "application/json",
+    },
+    body: JSON.stringify({
+      grado: 3,
+      dificultad: "fácil",
+      materia: "español",
+      cantidad: 3
+    }),
+  })
+    .then((res) => {
+      console.log("Respuesta recibida, estado:", res.status); // 2. Log del status de la respuesta
+      if (!res.ok) {
+        throw new Error(`HTTP error! status: ${res.status}`);
+      }
+      return res.json();
     })
-      .then((res) => res.json())
-      .then((data) => setPreguntas(data.quiz))
-      .catch((err) => console.error("Error al obtener preguntas:", err));
-  }, []);
-
+    .then((data) => {
+      console.log("Datos recibidos de la API:", data); // 3. Log de los datos recibidos
+      console.log("Número de preguntas recibidas:", data.quiz.length); // 4. Log de cantidad de preguntas
+      setPreguntas(data.quiz);
+    })
+    .catch((err) => {
+      console.error("Error al obtener preguntas:", err); // 5. Log de errores
+    });
+}, []);
   const avanzar = () => {
     if (preguntaActual + 1 < preguntas.length) {
       setPreguntaActual(preguntaActual + 1);
@@ -50,7 +83,17 @@ function App() {
       setMostrarResultados(true);
     }
   };
+useEffect(() => {
+  if (mostrarResultados) {
+    const timer = setTimeout(() => {
+      // Reproduce un audio de despedida aleatorio (despedida1, despedida2 o despedida3)
+      const randomDespedida = Math.floor(Math.random() * 3) + 1;
+      experienceRef.current?.playAudioWithAnimation(`despedida${randomDespedida}`);
+    }, 5000); // Espera 5 segundos antes de la despedida
 
+    return () => clearTimeout(timer); // Limpieza del timer
+  }
+}, [mostrarResultados]);
   return (
     <div style={{ position: "relative", width: "100vw", height: "100vh" }}>
       {/* Tarjeta de pregunta actual */}
@@ -133,7 +176,7 @@ function App() {
       {/* Canvas 3D */}
       <Canvas shadows camera={{ position: [0, 0, 8], fov: 42 }}>
         <color attach="background" args={["#ececec"]} />
-        <Experience preguntas={preguntas} />
+        <Experience preguntas={preguntas} ref={experienceRef} />
       </Canvas>
     </div>
   );

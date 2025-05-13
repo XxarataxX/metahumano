@@ -1,15 +1,16 @@
 import { Environment, OrbitControls, useTexture } from "@react-three/drei";
 import { useThree } from "@react-three/fiber";
 import { Avatar } from "./Avatar";
+import React, { forwardRef } from "react";
 
-export const Experience = ({ preguntas }) => {
+export const Experience = forwardRef(({ preguntas }, ref) => {
   const texture = useTexture("textures/youtubeBackground.jpg");
   const viewport = useThree((state) => state.viewport);
 
   return (
     <>
       <OrbitControls />
-      <Avatar position={[0, -3, 5]} scale={2} preguntas={preguntas} />
+      <Avatar position={[0, -3, 5]} scale={2} preguntas={preguntas} ref={ref} />
       <Environment preset="sunset" />
       <mesh>
         <planeGeometry args={[viewport.width, viewport.height]} />
@@ -17,5 +18,5 @@ export const Experience = ({ preguntas }) => {
       </mesh>
     </>
   );
-};
+});
 

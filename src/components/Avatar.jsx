@@ -6,8 +6,7 @@ Command: npx gltfjsx@6.2.3 public/models/646d9dcdc8a5f5bddbfac913.glb -o src/com
 import { useAnimations, useFBX, useGLTF } from "@react-three/drei";
 import { useFrame, useLoader } from "@react-three/fiber";
 import { useControls } from "leva";
-import React, { useEffect, useMemo, useRef, useState } from "react";
-
+import React, { useEffect, useMemo, useRef, useState, forwardRef, useImperativeHandle  } from "react";
 import * as THREE from "three";
 
 const corresponding = {
@@ -22,35 +21,202 @@ const corresponding = {
   X: "viseme_PP",
 };
 
-export function Avatar({ preguntas, ...props }) {
+export const Avatar = forwardRef(({ preguntas, ...props }, ref) => {
+  // Lista de todos los audios disponibles con sus respectivos lipsync
+  const audioData = useMemo(() => ({
+    welcome: {
+      audio: new Audio("/audios/welcome.mp3"),
+      lipsync: "/audios/welcome.json"
+    },
+    aprove1: {
+      audio: new Audio("/audios/aprove1.mp3"),
+      lipsync: "/audios/aprove1.json"
+    },
+    aprove2: {
+      audio: new Audio("/audios/aprove2.mp3"),
+      lipsync: "/audios/aprove2.json"
+    },
+    aprove3: {
+      audio: new Audio("/audios/aprove3.mp3"),
+      lipsync: "/audios/aprove3.json"
+    },
+    bienvenida2: {
+      audio: new Audio("/audios/bienvenida2.mp3"),
+      lipsync: "/audios/bienvenida2.json"
+    },
+    bienvenida3: {
+      audio: new Audio("/audios/bienvenida3.mp3"),
+      lipsync: "/audios/bienvenida3.json"
+    },
+    despedida1: {
+      audio: new Audio("/audios/despedida1.mp3"),
+      lipsync: "/audios/despedida1.json"
+    },
+    despedida2: {
+      audio: new Audio("/audios/despedida2.mp3"),
+      lipsync: "/audios/despedida2.json"
+    },
+    despedida3: {
+      audio: new Audio("/audios/despedida3.mp3"),
+      lipsync: "/audios/despedida3.json"
+    },
+    equivocado1: {
+      audio: new Audio("/audios/equivocado1.mp3"),
+      lipsync: "/audios/equivocado1.json"
+    },
+    equivocado2: {
+      audio: new Audio("/audios/equivocado2.mp3"),
+      lipsync: "/audios/equivocado2.json"
+    },
+    equivocado3: {
+      audio: new Audio("/audios/equivocado3.mp3"),
+      lipsync: "/audios/equivocado3.json"
+    },
+    relleno1: {
+      audio: new Audio("/audios/relleno1.mp3"),
+      lipsync: "/audios/relleno1.json"
+    }
+  }), []);
+
+  // Mapeo de audios a animaciones correspondientes
+  const audioToAnimation = {
+    welcome: "Greeting",
+    aprove1: "Clapping",
+    aprove2: "Acknowledging",
+    aprove3: "Salute",
+    bienvenida2: "ThoughfulHeadShake",
+    bienvenida3: "PointForward",
+    despedida1: "Defeated",
+    despedida2: "Defeat",
+    despedida3: "Yelling",
+    equivocado1: "Angry",
+    equivocado2: "Angry2",
+    equivocado3: "Surprised",
+    relleno1: "Surprised"
+  };
+
+  const [isPlaying, setIsPlaying] = useState(false);
+  const [animation, setAnimation] = useState("Idle");
+  const [currentLipsync, setCurrentLipsync] = useState(null);
+  const [currentAudio, setCurrentAudio] = useState(null);
+    const [hasPlayedWelcome, setHasPlayedWelcome] = useState(false);
+  const rellenoInterval = useRef(null);
+  
+
+  const playAudioWithAnimation = (audioKey) => {
+    const audioInfo = audioData[audioKey];
+    if (!audioInfo) return;
+
+    // Detener cualquier audio previo
+    Object.values(audioData).forEach(({audio}) => {
+      audio.pause();
+      audio.currentTime = 0;
+    });
+
+    // Cargar el lipsync correspondiente
+    fetch(audioInfo.lipsync)
+      .then(response => response.json())
+      .then(lipsync => {
+        setCurrentLipsync(lipsync);
+        setCurrentAudio(audioInfo.audio);
+        
+        audioInfo.audio.play()
+          .then(() => {
+            setIsPlaying(true);
+            setAnimation(audioToAnimation[audioKey]);
+            
+            audioInfo.audio.onended = () => {
+              setIsPlaying(false);
+              setAnimation("Idle");
+              setCurrentLipsync(null);
+              setCurrentAudio(null);
+              
+              // Esperar 2 segundos ANTES de marcar como reproducido
+              setTimeout(() => {
+                setHasPlayedWelcome(true);
+              }, 2000); // 2000 ms = 2 segundos
+            };
+          })
+          .catch(error => {
+            console.error("Error al reproducir:", error);
+          });
+      })
+      .catch(error => {
+        console.error("Error cargando lipsync:", error);
+      });
+  };
+
+  const startRellenoLoop = () => {
+    // Si ya hay preguntas, no iniciamos el loop
+    if (preguntas && preguntas.length > 0) return;
+    
+    // Reproducir el audio de relleno cada 10 segundos
+    rellenoInterval.current = setInterval(() => {
+      if (!isPlaying && hasPlayedWelcome) {
+        playAudioWithAnimation("relleno1");
+      }
+    }, 5000); // 10 segundos entre reproducciones
+    
+    // Primera reproducción inmediata después del welcome
+    if (hasPlayedWelcome) {
+      playAudioWithAnimation("relleno1");
+    }
+  };
+
+  const stopRellenoLoop = () => {
+    if (rellenoInterval.current) {
+      clearInterval(rellenoInterval.current);
+      rellenoInterval.current = null;
+    }
+  };
+
+  useEffect(() => {
+    // Reproducir solo el audio de bienvenida al inicio
+    const timer = setTimeout(() => {
+      playAudioWithAnimation("welcome");
+    }, 2000);
+
+    return () => {
+      clearTimeout(timer);
+      stopRellenoLoop();
+      Object.values(audioData).forEach(({audio}) => {
+        audio.pause();
+        audio.currentTime = 0;
+      });
+    };
+  }, []);
+
+useEffect(() => {
+  if (hasPlayedWelcome) {
+    startRellenoLoop(); // Esto ya incluye la primera reproducción
+  }
+  
+  if (preguntas?.length > 0) {
+    stopRellenoLoop();
+  }
+  
+  return () => stopRellenoLoop();
+}, [hasPlayedWelcome, preguntas]);
   const {
-    playAudio,
-    script,
     headFollow,
     smoothMorphTarget,
     morphTargetSmoothing,
   } = useControls({
-    playAudio: false,
     headFollow: true,
     smoothMorphTarget: true,
     morphTargetSmoothing: 0.5,
-    script: {
-      value: "welcome",
-      options: ["welcome", "pizzas", "faraon"],
-    },
   });
 
-  const audio = useMemo(() => new Audio(`/audios/${script}.mp3`), [script]);
-  const jsonFile = useLoader(THREE.FileLoader, `audios/${script}.json`);
-  const lipsync = JSON.parse(jsonFile);
-
   useFrame(() => {
-    const currentAudioTime = audio.currentTime;
-    if (audio.paused || audio.ended) {
+    if (!isPlaying || !currentAudio || !currentLipsync) return;
+
+    const currentAudioTime = currentAudio.currentTime;
+    if (currentAudio.paused || currentAudio.ended) {
       setAnimation("Idle");
       return;
     }
 
+    // Resetear todos los morph targets
     Object.values(corresponding).forEach((value) => {
       if (!smoothMorphTarget) {
         nodes.Wolf3D_Head.morphTargetInfluences[
@@ -82,8 +248,9 @@ export function Avatar({ preguntas, ...props }) {
       }
     });
 
-    for (let i = 0; i < lipsync.mouthCues.length; i++) {
-      const mouthCue = lipsync.mouthCues[i];
+    // Aplicar el morph target actual según el lipsync
+    for (let i = 0; i < currentLipsync.mouthCues.length; i++) {
+      const mouthCue = currentLipsync.mouthCues[i];
       if (
         currentAudioTime >= mouthCue.start &&
         currentAudioTime <= mouthCue.end
@@ -127,31 +294,10 @@ export function Avatar({ preguntas, ...props }) {
             morphTargetSmoothing
           );
         }
-
         break;
       }
     }
   });
-
-  useEffect(() => {
-    nodes.Wolf3D_Head.morphTargetInfluences[
-      nodes.Wolf3D_Head.morphTargetDictionary["viseme_I"]
-    ] = 1;
-    nodes.Wolf3D_Teeth.morphTargetInfluences[
-      nodes.Wolf3D_Teeth.morphTargetDictionary["viseme_I"]
-    ] = 1;
-    if (playAudio) {
-      audio.play();
-      if (script === "welcome") {
-        setAnimation("Greeting");
-      } else {
-        setAnimation("Angry");
-      }
-    } else {
-      setAnimation("Idle");
-      audio.pause();
-    }
-  }, [playAudio, script]);
 
   const { nodes, materials } = useGLTF("/models/646d9dcdc8a5f5bddbfac913.glb");
   const { animations: idleAnimation } = useFBX("/animations/Idle.fbx");
@@ -170,37 +316,54 @@ export function Avatar({ preguntas, ...props }) {
   const { animations: ThoughfulHeadShakeAnimation } = useFBX("/animations/Thoughtful Head Shake.fbx");
   const { animations: YellingAnimation } = useFBX("/animations/Yelling.fbx");
 
+  // Asignar nombres a las animaciones
   idleAnimation[0].name = "Idle";
   angryAnimation[0].name = "Angry";
   greetingAnimation[0].name = "Greeting";
-  AcknowledgingAnimation[0].name = "Acknowledging"
-  Angry2Animation[0].name = "Angry2"
-  ClappingAnimation[0].name = "Clapping"
-  CockyHeadTurnAnimation[0].name = "CockyHeadTurn"
-  DefeatAnimation[0].name = "Defeat"
-  DefeatedAnimation[0].name = "Defeated"
-  ofensiveAnimation[0].name = "ofensive"
-  PointForwardAnimation[0].name = "PointForward"
-  SaluteAnimation[0].name = "Salute"
-  SurprisedAnimation[0].name = "Surprised"
-  ThoughfulHeadShakeAnimation[0].name = "ThoughfulHeadShake"
-  YellingAnimation[0].name = "Yelling"
-
-
-  const [animation, setAnimation] = useState("Idle");
+  AcknowledgingAnimation[0].name = "Acknowledging";
+  Angry2Animation[0].name = "Angry2";
+  ClappingAnimation[0].name = "Clapping";
+  CockyHeadTurnAnimation[0].name = "CockyHeadTurn";
+  DefeatAnimation[0].name = "Defeat";
+  DefeatedAnimation[0].name = "Defeated";
+  ofensiveAnimation[0].name = "ofensive";
+  PointForwardAnimation[0].name = "PointForward";
+  SaluteAnimation[0].name = "Salute";
+  SurprisedAnimation[0].name = "Surprised";
+  ThoughfulHeadShakeAnimation[0].name = "ThoughfulHeadShake";
+  YellingAnimation[0].name = "Yelling";
 
   const group = useRef();
   const { actions } = useAnimations(
-    [idleAnimation[0], angryAnimation[0], greetingAnimation[0]],
+    [
+      idleAnimation[0], 
+      angryAnimation[0], 
+      greetingAnimation[0],
+      AcknowledgingAnimation[0],
+      Angry2Animation[0],
+      ClappingAnimation[0],
+      CockyHeadTurnAnimation[0],
+      DefeatAnimation[0],
+      DefeatedAnimation[0],
+      ofensiveAnimation[0],
+      PointForwardAnimation[0],
+      SaluteAnimation[0],
+      SurprisedAnimation[0],
+      ThoughfulHeadShakeAnimation[0],
+      YellingAnimation[0]
+    ],
     group
   );
 
+  useImperativeHandle(ref, () => ({
+    playAudioWithAnimation
+  }));
+
   useEffect(() => {
-    actions[animation].reset().fadeIn(0.5).play();
-    return () => actions[animation].fadeOut(0.5);
+    actions[animation]?.reset().fadeIn(0.5).play();
+    return () => actions[animation]?.fadeOut(0.5);
   }, [animation]);
 
-  // CODE ADDED AFTER THE TUTORIAL (but learnt in the portfolio tutorial ♥️)
   useFrame((state) => {
     if (headFollow) {
       group.current.getObjectByName("Head").lookAt(state.camera.position);
@@ -220,9 +383,8 @@ export function Avatar({ preguntas, ...props }) {
     speech.lang = "es-ES";
     window.speechSynthesis.speak(speech);
 
-    setAnimation("Greeting"); // o cualquier otra animación
+    setAnimation("Greeting");
   }, [preguntas]);
-
 
   return (
     <group {...props} dispose={null} ref={group}>
@@ -286,6 +448,6 @@ export function Avatar({ preguntas, ...props }) {
       />
     </group>
   );
-}
+});
 
 useGLTF.preload("/models/646d9dcdc8a5f5bddbfac913.glb");

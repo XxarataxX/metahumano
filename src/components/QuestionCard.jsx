@@ -13,22 +13,23 @@ const QuestionCard = ({ pregunta, index, onResponder }) => {
     setRespondida(false);
     setPuedeContinuar(false);
   }, [pregunta]);
+const verificarRespuesta = (opcion) => {
+  if (respondida) return;
 
-  const verificarRespuesta = (opcion) => {
-    if (respondida) return;
+  setSeleccion(opcion);
+  const esCorrecta = opcion === pregunta.respuesta_correcta;
+  setResultado(esCorrecta ? "correcto" : "incorrecto");
+  setRespondida(true);
+  
+  // 🔥 Envía la respuesta al padre para feedback INMEDIATO (sonido/animación)
+  onResponder(opcion);
+};
 
-    setSeleccion(opcion);
-    const esCorrecta = opcion === pregunta.respuesta_correcta;
-    setResultado(esCorrecta ? "correcto" : "incorrecto");
-    setRespondida(true);
-    setPuedeContinuar(true); // Ahora se puede avanzar
-  };
-
-  const siguientePregunta = () => {
-    if (seleccion) {
-      onResponder(seleccion); // Envía la respuesta al componente padre
-    }
-  };
+const siguientePregunta = () => {
+  if (respondida) {
+    onResponder(seleccion); // Opcional: Reenvía la respuesta si es necesario
+  }
+};
 
   return (
     <div style={{
