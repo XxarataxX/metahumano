@@ -99,7 +99,7 @@ export const Avatar = forwardRef(({ preguntas, ...props }, ref) => {
   const [animation, setAnimation] = useState("Idle");
   const [currentLipsync, setCurrentLipsync] = useState(null);
   const [currentAudio, setCurrentAudio] = useState(null);
-    const [hasPlayedWelcome, setHasPlayedWelcome] = useState(false);
+  const [hasPlayedWelcome, setHasPlayedWelcome] = useState(false);
   const rellenoInterval = useRef(null);
   
 
@@ -299,25 +299,25 @@ useEffect(() => {
     }
   });
 
-  useEffect(() => {
-    nodes.Wolf3D_Head.morphTargetInfluences[
-      nodes.Wolf3D_Head.morphTargetDictionary["viseme_I"]
-    ] = 1;
-    nodes.Wolf3D_Teeth.morphTargetInfluences[
-      nodes.Wolf3D_Teeth.morphTargetDictionary["viseme_I"]
-    ] = 1;
-    if (playAudio) {
-      audio.play();
-      if (script === "welcome") {
-        setAnimation("Greeting");
-      } else {
-        setAnimation("Angry");
-      }
-    } else {
-      setAnimation("Idle");
-      audio.pause();
-    }
-  }, [playAudio, script]);
+  // useEffect(() => {
+  //   nodes.Wolf3D_Head.morphTargetInfluences[
+  //     nodes.Wolf3D_Head.morphTargetDictionary["viseme_I"]
+  //   ] = 1;
+  //   nodes.Wolf3D_Teeth.morphTargetInfluences[
+  //     nodes.Wolf3D_Teeth.morphTargetDictionary["viseme_I"]
+  //   ] = 1;
+  //   if (playAudio) {
+  //     audio.play();
+  //     if (script === "welcome") {
+  //       setAnimation("Greeting");
+  //     } else {
+  //       setAnimation("Angry");
+  //     }
+  //   } else {
+  //     setAnimation("Idle");
+  //     audio.pause();
+  //   }
+  // }, [playAudio, script]);
 
   // const { nodes, materials } = useGLTF("/models/646d9dcdc8a5f5bddbfac913.glb");
   const { nodes, materials } = useGLTF("/models/6823856055fa435d140c3f37 (1).glb");
