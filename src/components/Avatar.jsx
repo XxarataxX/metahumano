@@ -154,7 +154,7 @@ export function Avatar({ preguntas, ...props }) {
   }, [playAudio, script]);
 
   // const { nodes, materials } = useGLTF("/models/646d9dcdc8a5f5bddbfac913.glb");
-  const { nodes, materials } = useGLTF("/models/6823856055fa435d140c3f37 (1).glb");
+  const { nodes, materials } = useGLTF("/models/6823b9533c5ab94b9e566250.glb");
   const { animations: idleAnimation } = useFBX("/animations/Idle.fbx");
   const { animations: angryAnimation } = useFBX("/animations/Angry Gesture.fbx");
   const { animations: greetingAnimation } = useFBX("/animations/Standing Greeting.fbx");
