@@ -4,7 +4,8 @@ import { Avatar } from "./Avatar";
 import React, { forwardRef } from "react";
 
 export const Experience = forwardRef(({ preguntas }, ref) => {
-  const texture = useTexture("textures/youtubeBackground.jpg");
+//const texture = useTexture("textures/youtubeBackground.jpg");
+const texture = useTexture("textures/class.png");
   const viewport = useThree((state) => state.viewport);
 
   return (
