@@ -320,8 +320,9 @@ useEffect(() => {
   // }, [playAudio, script]);
 
   // const { nodes, materials } = useGLTF("/models/646d9dcdc8a5f5bddbfac913.glb");
-  const { nodes, materials } = useGLTF("/models/6823b9533c5ab94b9e566250.glb");
-  const { animations: idleAnimation } = useFBX("/animations/Idle.fbx");
+  // const { nodes, materials } = useGLTF("/models/6823b9533c5ab94b9e566250.glb");
+  const { nodes, materials } = useGLTF("/models/formal1.glb");
+  const { animations: idleAnimation } = useFBX("/animations/Defeated (1).fbx");
   const { animations: angryAnimation } = useFBX("/animations/Angry Gesture.fbx");
   const { animations: greetingAnimation } = useFBX("/animations/Standing Greeting.fbx");
   const { animations: AcknowledgingAnimation } = useFBX("/animations/Acknowledging.fbx");
@@ -381,9 +382,16 @@ useEffect(() => {
   }));
 
   useEffect(() => {
-    actions[animation]?.reset().fadeIn(0.5).play();
-    return () => actions[animation]?.fadeOut(0.5);
+    if (!actions[animation] || !group.current) return;
+  
+    // 🔁 Corrige la rotación para que el personaje no esté acostado
+    group.current.rotation.set(-Math.PI / 2, 0, 0); // o prueba con Math.PI / 2 si esto no es suficiente
+  
+    actions[animation].reset().fadeIn(0.5).play();
+    return () => actions[animation].fadeOut(0.5);
   }, [animation]);
+  
+  
 
   useFrame((state) => {
     if (headFollow) {
