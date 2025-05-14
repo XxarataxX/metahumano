@@ -23,6 +23,10 @@ const verificarRespuesta = (opcion) => {
   
   // 🔥 Envía la respuesta al padre para feedback INMEDIATO (sonido/animación)
   onResponder(opcion);
+  
+  setTimeout(() => {
+    setPuedeContinuar(true);
+  }, 2000);
 };
 
 const siguientePregunta = () => {
@@ -68,7 +72,7 @@ const siguientePregunta = () => {
         ))}
       </ul>
 
-      {respondida && (
+      {respondida && puedeContinuar && (
         <div style={{ marginTop: "1rem" }}>
           <p style={{ color: resultado === "correcto" ? "green" : "red" }}>
             {resultado === "correcto"

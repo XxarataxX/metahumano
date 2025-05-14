@@ -2,6 +2,7 @@ import { Canvas } from "@react-three/fiber";
 import { Experience } from "./components/Experience";
 import { useEffect, useRef, useState } from "react";
 import QuestionCard from "./components/QuestionCard";
+import SelectorVoz from "./components/SelectorVoz";
 
 function App() {
   const [preguntas, setPreguntas] = useState([]);
@@ -62,7 +63,7 @@ useEffect(() => {
     } else {
       setMostrarResultados(true);
     }
-  }, 10000); // Delay de 2 segundos para ver el feedback
+  }, 1000); // Delay de 2 segundos para ver el feedback
 };
 
 useEffect(() => {
@@ -71,7 +72,7 @@ useEffect(() => {
 
   console.log("Iniciando solicitud a la API..."); // 1. Log cuando comienza la solicitud
 
-  fetch("http://192.168.100.93:8000/generate_question/", {
+  fetch("http://192.168.1.99:8000/generate_question/", {
     method: "POST",
     headers: {
       "Content-Type": "application/json",
@@ -277,6 +278,7 @@ useEffect(() => {
           maxWidth: "400px",
         }}
       >
+        <SelectorVoz />
 {cargandoInicio && preguntas.length === 0 ? (
   <div
     style={{
@@ -312,7 +314,9 @@ useEffect(() => {
     `}</style>
   </div>
 ) : (
+  
   preguntas.length > 0 && !mostrarResultados && !cargando && !cargandoInicio && (
+
     <QuestionCard
       pregunta={preguntas[preguntaActual]}
       index={preguntaActual}

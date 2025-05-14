@@ -4,9 +4,9 @@ Command: npx gltfjsx@6.2.3 public/models/646d9dcdc8a5f5bddbfac913.glb -o src/com
 */
 
 import { useAnimations, useFBX, useGLTF } from "@react-three/drei";
-import { useFrame } from "@react-three/fiber";
+import { useFrame, useLoader } from "@react-three/fiber";
 import { useControls } from "leva";
-import React, { useEffect, useMemo, useRef, useState, forwardRef, useImperativeHandle } from "react";
+import React, { useEffect, useMemo, useRef, useState, forwardRef, useImperativeHandle  } from "react";
 import * as THREE from "three";
 
 const corresponding = {
@@ -22,11 +22,9 @@ const corresponding = {
 };
 
 export const Avatar = forwardRef(({ preguntas, ...props }, ref) => {
+  // Lista de todos los audios disponibles con sus respectivos lipsync
   const audioData = useMemo(() => ({
-    welcome: {
-      audio: new Audio("/audios/welcome.mp3"),
-      lipsync: "/audios/welcome.json"
-    },
+
     aprove1: {
       audio: new Audio("/audios/aprove1.mp3"),
       lipsync: "/audios/aprove1.json"
@@ -77,8 +75,8 @@ export const Avatar = forwardRef(({ preguntas, ...props }, ref) => {
     }
   }), []);
 
+  // Mapeo de audios a animaciones correspondientes
   const audioToAnimation = {
-    welcome: "Greeting",
     aprove1: "Clapping",
     aprove2: "Acknowledging",
     aprove3: "Salute",
@@ -86,10 +84,9 @@ export const Avatar = forwardRef(({ preguntas, ...props }, ref) => {
     bienvenida3: "PointForward",
     despedida1: "Defeated",
     despedida2: "Defeat",
-    despedida3: "Yelling",
-    equivocado1: "Angry",
+    despedida3: "Surprised",
     equivocado2: "Angry2",
-    equivocado3: "Surprised",
+    equivocado3: "Yelling",
     relleno1: "Surprised"
   };
 
@@ -99,78 +96,19 @@ export const Avatar = forwardRef(({ preguntas, ...props }, ref) => {
   const [currentAudio, setCurrentAudio] = useState(null);
   const [hasPlayedWelcome, setHasPlayedWelcome] = useState(false);
   const rellenoInterval = useRef(null);
-
-  const { nodes, materials } = useGLTF("/models/6823856055fa435d140c3f37 (1).glb");
   
-  // Cargar animaciones
-  const { animations: idleAnimation } = useFBX("/animations/Idle.fbx");
-  const { animations: angryAnimation } = useFBX("/animations/Angry Gesture.fbx");
-  const { animations: greetingAnimation } = useFBX("/animations/Standing Greeting.fbx");
-  const { animations: AcknowledgingAnimation } = useFBX("/animations/Acknowledging.fbx");
-  const { animations: Angry2Animation } = useFBX("/animations/Angry.fbx");
-  const { animations: ClappingAnimation } = useFBX("/animations/Clapping.fbx");
-  const { animations: DefeatAnimation } = useFBX("/animations/Defeat.fbx");
-  const { animations: DefeatedAnimation } = useFBX("/animations/Defeated.fbx");
-  const { animations: PointForwardAnimation } = useFBX("/animations/Pointing Forward.fbx");
-  const { animations: SaluteAnimation } = useFBX("/animations/Salute.fbx");
-  const { animations: SurprisedAnimation } = useFBX("/animations/Surprised.fbx");
-  const { animations: ThoughfulHeadShakeAnimation } = useFBX("/animations/Thoughtful Head Shake.fbx");
-  const { animations: YellingAnimation } = useFBX("/animations/Yelling.fbx");
-
-  // Asignar nombres y normalizar animaciones
-  idleAnimation[0].name = "Idle";
-  angryAnimation[0].name = "Angry";
-  greetingAnimation[0].name = "Greeting";
-  AcknowledgingAnimation[0].name = "Acknowledging";
-  Angry2Animation[0].name = "Angry2";
-  ClappingAnimation[0].name = "Clapping";
-  DefeatAnimation[0].name = "Defeat";
-  DefeatedAnimation[0].name = "Defeated";
-  PointForwardAnimation[0].name = "PointForward";
-  SaluteAnimation[0].name = "Salute";
-  SurprisedAnimation[0].name = "Surprised";
-  ThoughfulHeadShakeAnimation[0].name = "ThoughfulHeadShake";
-  YellingAnimation[0].name = "Yelling";
-
-  const group = useRef();
-  const { actions } = useAnimations(
-    [
-      idleAnimation[0],
-      angryAnimation[0],
-      greetingAnimation[0],
-      AcknowledgingAnimation[0],
-      Angry2Animation[0],
-      ClappingAnimation[0],
-      DefeatAnimation[0],
-      DefeatedAnimation[0],
-      PointForwardAnimation[0],
-      SaluteAnimation[0],
-      SurprisedAnimation[0],
-      ThoughfulHeadShakeAnimation[0],
-      YellingAnimation[0]
-    ],
-    group
-  );
-
-  const {
-    headFollow,
-    smoothMorphTarget,
-    morphTargetSmoothing,
-  } = useControls({
-    headFollow: true,
-    smoothMorphTarget: true,
-    morphTargetSmoothing: 0.5,
-  });
 
   const playAudioWithAnimation = (audioKey) => {
     const audioInfo = audioData[audioKey];
     if (!audioInfo) return;
 
+    // Detener cualquier audio previo
     Object.values(audioData).forEach(({audio}) => {
       audio.pause();
       audio.currentTime = 0;
     });
 
+    // Cargar el lipsync correspondiente
     fetch(audioInfo.lipsync)
       .then(response => response.json())
       .then(lipsync => {
@@ -188,9 +126,10 @@ export const Avatar = forwardRef(({ preguntas, ...props }, ref) => {
               setCurrentLipsync(null);
               setCurrentAudio(null);
               
+              // Esperar 2 segundos ANTES de marcar como reproducido
               setTimeout(() => {
                 setHasPlayedWelcome(true);
-              }, 2000);
+              }, 2000); // 2000 ms = 2 segundos
             };
           })
           .catch(error => {
@@ -203,14 +142,17 @@ export const Avatar = forwardRef(({ preguntas, ...props }, ref) => {
   };
 
   const startRellenoLoop = () => {
+    // Si ya hay preguntas, no iniciamos el loop
     if (preguntas && preguntas.length > 0) return;
     
+    // Reproducir el audio de relleno cada 10 segundos
     rellenoInterval.current = setInterval(() => {
       if (!isPlaying && hasPlayedWelcome) {
         playAudioWithAnimation("relleno1");
       }
-    }, 5000);
+    }, 5000); // 10 segundos entre reproducciones
     
+    // Primera reproducción inmediata después del welcome
     if (hasPlayedWelcome) {
       playAudioWithAnimation("relleno1");
     }
@@ -223,10 +165,10 @@ export const Avatar = forwardRef(({ preguntas, ...props }, ref) => {
     }
   };
 
-  // Efecto para el audio y animaciones
   useEffect(() => {
+    // Reproducir solo el audio de bienvenida al inicio
     const timer = setTimeout(() => {
-      playAudioWithAnimation("welcome");
+      playAudioWithAnimation("bienvenida2");
     }, 2000);
 
     return () => {
@@ -239,58 +181,37 @@ export const Avatar = forwardRef(({ preguntas, ...props }, ref) => {
     };
   }, []);
 
-  useEffect(() => {
-    if (hasPlayedWelcome) {
-      startRellenoLoop();
-    }
-    
-    if (preguntas?.length > 0) {
-      stopRellenoLoop();
-    }
-    
-    return () => stopRellenoLoop();
-  }, [hasPlayedWelcome, preguntas]);
+useEffect(() => {
+  if (hasPlayedWelcome) {
+    startRellenoLoop(); // Esto ya incluye la primera reproducción
+  }
+  
+  if (preguntas?.length > 0) {
+    stopRellenoLoop();
+  }
+  
+  return () => stopRellenoLoop();
+}, [hasPlayedWelcome, preguntas]);
+  const {
+    headFollow,
+    smoothMorphTarget,
+    morphTargetSmoothing,
+  } = useControls({
+    headFollow: true,
+    smoothMorphTarget: true,
+    morphTargetSmoothing: 0.5,
+  });
 
-  // Control de animaciones y posición
-  useEffect(() => {
-    if (actions[animation]) {
-      // Resetear la posición de la cadera antes de cada animación
-      const hips = group.current?.getObjectByName("Hips");
-      if (hips) {
-        hips.position.set(0, 0, 0);
-        hips.rotation.set(0, 0, 0);
-      }
-
-      actions[animation].reset().fadeIn(0.5).play();
-    }
-    return () => {
-      if (actions[animation]) {
-        actions[animation].fadeOut(0.5);
-      }
-    };
-  }, [animation, actions]);
-
-  // Frame loop para lipsync y posición
-  useFrame((state) => {
-    // Mantener la posición del avatar estable
-    const hips = group.current?.getObjectByName("Hips");
-    if (hips) {
-      hips.position.y = 0;
-      hips.rotation.x = 0;
-      hips.rotation.z = 0;
-    }
-
-    // Control de cabeza
-    if (headFollow) {
-      group.current?.getObjectByName("Head")?.lookAt(state.camera.position);
-    }
-
-    // Lipsync
+  useFrame(() => {
     if (!isPlaying || !currentAudio || !currentLipsync) return;
 
     const currentAudioTime = currentAudio.currentTime;
-    if (currentAudio.paused || currentAudio.ended) return;
+    if (currentAudio.paused || currentAudio.ended) {
+      setAnimation("Idle");
+      return;
+    }
 
+    // Resetear todos los morph targets
     Object.values(corresponding).forEach((value) => {
       if (!smoothMorphTarget) {
         nodes.Wolf3D_Head.morphTargetInfluences[
@@ -322,32 +243,47 @@ export const Avatar = forwardRef(({ preguntas, ...props }, ref) => {
       }
     });
 
+    // Aplicar el morph target actual según el lipsync
     for (let i = 0; i < currentLipsync.mouthCues.length; i++) {
       const mouthCue = currentLipsync.mouthCues[i];
-      if (currentAudioTime >= mouthCue.start && currentAudioTime <= mouthCue.end) {
-        const value = corresponding[mouthCue.value];
+      if (
+        currentAudioTime >= mouthCue.start &&
+        currentAudioTime <= mouthCue.end
+      ) {
         if (!smoothMorphTarget) {
           nodes.Wolf3D_Head.morphTargetInfluences[
-            nodes.Wolf3D_Head.morphTargetDictionary[value]
+            nodes.Wolf3D_Head.morphTargetDictionary[
+              corresponding[mouthCue.value]
+            ]
           ] = 1;
           nodes.Wolf3D_Teeth.morphTargetInfluences[
-            nodes.Wolf3D_Teeth.morphTargetDictionary[value]
+            nodes.Wolf3D_Teeth.morphTargetDictionary[
+              corresponding[mouthCue.value]
+            ]
           ] = 1;
         } else {
           nodes.Wolf3D_Head.morphTargetInfluences[
-            nodes.Wolf3D_Head.morphTargetDictionary[value]
+            nodes.Wolf3D_Head.morphTargetDictionary[
+              corresponding[mouthCue.value]
+            ]
           ] = THREE.MathUtils.lerp(
             nodes.Wolf3D_Head.morphTargetInfluences[
-              nodes.Wolf3D_Head.morphTargetDictionary[value]
+              nodes.Wolf3D_Head.morphTargetDictionary[
+                corresponding[mouthCue.value]
+              ]
             ],
             1,
             morphTargetSmoothing
           );
           nodes.Wolf3D_Teeth.morphTargetInfluences[
-            nodes.Wolf3D_Teeth.morphTargetDictionary[value]
+            nodes.Wolf3D_Teeth.morphTargetDictionary[
+              corresponding[mouthCue.value]
+            ]
           ] = THREE.MathUtils.lerp(
             nodes.Wolf3D_Teeth.morphTargetInfluences[
-              nodes.Wolf3D_Teeth.morphTargetDictionary[value]
+              nodes.Wolf3D_Teeth.morphTargetDictionary[
+                corresponding[mouthCue.value]
+              ]
             ],
             1,
             morphTargetSmoothing
@@ -358,74 +294,191 @@ export const Avatar = forwardRef(({ preguntas, ...props }, ref) => {
     }
   });
 
+  // useEffect(() => {
+  //   nodes.Wolf3D_Head.morphTargetInfluences[
+  //     nodes.Wolf3D_Head.morphTargetDictionary["viseme_I"]
+  //   ] = 1;
+  //   nodes.Wolf3D_Teeth.morphTargetInfluences[
+  //     nodes.Wolf3D_Teeth.morphTargetDictionary["viseme_I"]
+  //   ] = 1;
+  //   if (playAudio) {
+  //     audio.play();
+  //     if (script === "welcome") {
+  //       setAnimation("Greeting");
+  //     } else {
+  //       setAnimation("Angry");
+  //     }
+  //   } else {
+  //     setAnimation("Idle");
+  //     audio.pause();
+  //   }
+  // }, [playAudio, script]);
+
+  // const { nodes, materials } = useGLTF("/models/646d9dcdc8a5f5bddbfac913.glb");
+  // const { nodes, materials } = useGLTF("/models/6823b9533c5ab94b9e566250.glb");
+  const { nodes, materials } = useGLTF("/models/formal1.glb");
+  //const { animations: idleAnimation } = useFBX("/animations/Defeated (1).fbx");
+  const { animations: idleAnimation } = useFBX("/animations/Idle (1).fbx");
+  // const { animations: angryAnimation } = useFBX("/animations/Angry Gesture.fbx");
+  // const { animations: greetingAnimation } = useFBX("/animations/Standing Greeting.fbx");
+
+  const { animations: AcknowledgingAnimation } = useFBX("/animations/Acknowledging.fbx");
+  const { animations: Angry2Animation } = useFBX("/animations/Angry.fbx");
+  const { animations: ClappingAnimation } = useFBX("/animations/Clapping.fbx");
+  const { animations: CockyHeadTurnAnimation } = useFBX("/animations/Cocky Head Turn.fbx");
+  const { animations: DefeatAnimation } = useFBX("/animations/Defeat.fbx");
+  const { animations: DefeatedAnimation } = useFBX("/animations/Defeated.fbx");
+  const { animations: ofensiveAnimation } = useFBX("/animations/Offensive Idle.fbx");
+  const { animations: PointForwardAnimation } = useFBX("/animations/Pointing Forward.fbx");
+  const { animations: SaluteAnimation } = useFBX("/animations/Salute.fbx");
+  const { animations: SurprisedAnimation } = useFBX("/animations/Surprised.fbx");
+  const { animations: ThoughfulHeadShakeAnimation } = useFBX("/animations/Thoughtful Head Shake.fbx");
+  const { animations: YellingAnimation } = useFBX("/animations/Yelling.fbx");
+
+  // Asignar nombres a las animaciones
+  idleAnimation[0].name = "Idle";
+  // angryAnimation[0].name = "Angry";
+  // greetingAnimation[0].name = "Greeting";
+  AcknowledgingAnimation[0].name = "Acknowledging";
+  Angry2Animation[0].name = "Angry2";
+  ClappingAnimation[0].name = "Clapping";
+  CockyHeadTurnAnimation[0].name = "CockyHeadTurn";
+  DefeatAnimation[0].name = "Defeat";
+  DefeatedAnimation[0].name = "Defeated";
+  ofensiveAnimation[0].name = "ofensive";
+  PointForwardAnimation[0].name = "PointForward";
+  SaluteAnimation[0].name = "Salute";
+  SurprisedAnimation[0].name = "Surprised";
+  ThoughfulHeadShakeAnimation[0].name = "ThoughfulHeadShake";
+  YellingAnimation[0].name = "Yelling";
+
+  const group = useRef();
+  const { actions } = useAnimations(
+    [
+      idleAnimation[0], 
+      // angryAnimation[0], 
+      // greetingAnimation[0],
+      AcknowledgingAnimation[0],
+      Angry2Animation[0],
+      ClappingAnimation[0],
+      CockyHeadTurnAnimation[0],
+      DefeatAnimation[0],
+      DefeatedAnimation[0],
+      ofensiveAnimation[0],
+      PointForwardAnimation[0],
+      SaluteAnimation[0],
+      SurprisedAnimation[0],
+      ThoughfulHeadShakeAnimation[0],
+      YellingAnimation[0]
+    ],
+    group
+  );
+
   useImperativeHandle(ref, () => ({
     playAudioWithAnimation
   }));
 
+useEffect(() => {
+  if (!actions[animation] || !group.current) return;
+
+  // 🔁 Aplicar rotación solo si NO es la animación "Idle"
+  if (animation !== "Idle") {
+    group.current.rotation.set(-Math.PI / 2, 0, 0);
+  } else {
+    // Resetear la rotación para Idle
+    group.current.rotation.set(-Math.PI / 2, 0, 0);
+  }
+
+  actions[animation].reset().fadeIn(0.5).play();
+  return () => actions[animation].fadeOut(0.5);
+}, [animation]);
+  
+  
+
+  useFrame((state) => {
+    if (headFollow) {
+      group.current.getObjectByName("Head").lookAt(state.camera.position);
+    }
+  });
+
+  useEffect(() => {
+    if (!preguntas || preguntas.length === 0) return;
+
+    const primera = preguntas[0];
+    const texto = `${primera.pregunta}. 
+    A: ${primera.incisos.A}, 
+    B: ${primera.incisos.B}, 
+    C: ${primera.incisos.C}.`;
+
+    const speech = new SpeechSynthesisUtterance(texto);
+    speech.lang = "es-ES";
+    window.speechSynthesis.speak(speech);
+
+    setAnimation("Greeting");
+  }, [preguntas]);
+
   return (
-    <group position={[0, -1, 0]} rotation={[0, Math.PI, 0]}>
-      <group ref={group} {...props}>
-        <primitive object={nodes.Hips} />
-        <skinnedMesh
-          geometry={nodes.Wolf3D_Body.geometry}
-          material={materials.Wolf3D_Body}
-          skeleton={nodes.Wolf3D_Body.skeleton}
-        />
-        <skinnedMesh
-          geometry={nodes.Wolf3D_Outfit_Bottom.geometry}
-          material={materials.Wolf3D_Outfit_Bottom}
-          skeleton={nodes.Wolf3D_Outfit_Bottom.skeleton}
-        />
-        <skinnedMesh
-          geometry={nodes.Wolf3D_Outfit_Footwear.geometry}
-          material={materials.Wolf3D_Outfit_Footwear}
-          skeleton={nodes.Wolf3D_Outfit_Footwear.skeleton}
-        />
-        <skinnedMesh
-          geometry={nodes.Wolf3D_Outfit_Top.geometry}
-          material={materials.Wolf3D_Outfit_Top}
-          skeleton={nodes.Wolf3D_Outfit_Top.skeleton}
-        />
-        <skinnedMesh
-          geometry={nodes.Wolf3D_Hair.geometry}
-          material={materials.Wolf3D_Hair}
-          skeleton={nodes.Wolf3D_Hair.skeleton}
-        />
-        <skinnedMesh
-          name="EyeLeft"
-          geometry={nodes.EyeLeft.geometry}
-          material={materials.Wolf3D_Eye}
-          skeleton={nodes.EyeLeft.skeleton}
-          morphTargetDictionary={nodes.EyeLeft.morphTargetDictionary}
-          morphTargetInfluences={nodes.EyeLeft.morphTargetInfluences}
-        />
-        <skinnedMesh
-          name="EyeRight"
-          geometry={nodes.EyeRight.geometry}
-          material={materials.Wolf3D_Eye}
-          skeleton={nodes.EyeRight.skeleton}
-          morphTargetDictionary={nodes.EyeRight.morphTargetDictionary}
-          morphTargetInfluences={nodes.EyeRight.morphTargetInfluences}
-        />
-        <skinnedMesh
-          name="Wolf3D_Head"
-          geometry={nodes.Wolf3D_Head.geometry}
-          material={materials.Wolf3D_Skin}
-          skeleton={nodes.Wolf3D_Head.skeleton}
-          morphTargetDictionary={nodes.Wolf3D_Head.morphTargetDictionary}
-          morphTargetInfluences={nodes.Wolf3D_Head.morphTargetInfluences}
-        />
-        <skinnedMesh
-          name="Wolf3D_Teeth"
-          geometry={nodes.Wolf3D_Teeth.geometry}
-          material={materials.Wolf3D_Teeth}
-          skeleton={nodes.Wolf3D_Teeth.skeleton}
-          morphTargetDictionary={nodes.Wolf3D_Teeth.morphTargetDictionary}
-          morphTargetInfluences={nodes.Wolf3D_Teeth.morphTargetInfluences}
-        />
-      </group>
+    <group {...props} dispose={null} ref={group}>
+      <primitive object={nodes.Hips} />
+      <skinnedMesh
+        geometry={nodes.Wolf3D_Body.geometry}
+        material={materials.Wolf3D_Body}
+        skeleton={nodes.Wolf3D_Body.skeleton}
+      />
+      <skinnedMesh
+        geometry={nodes.Wolf3D_Outfit_Bottom.geometry}
+        material={materials.Wolf3D_Outfit_Bottom}
+        skeleton={nodes.Wolf3D_Outfit_Bottom.skeleton}
+      />
+      <skinnedMesh
+        geometry={nodes.Wolf3D_Outfit_Footwear.geometry}
+        material={materials.Wolf3D_Outfit_Footwear}
+        skeleton={nodes.Wolf3D_Outfit_Footwear.skeleton}
+      />
+      <skinnedMesh
+        geometry={nodes.Wolf3D_Outfit_Top.geometry}
+        material={materials.Wolf3D_Outfit_Top}
+        skeleton={nodes.Wolf3D_Outfit_Top.skeleton}
+      />
+      <skinnedMesh
+        geometry={nodes.Wolf3D_Hair.geometry}
+        material={materials.Wolf3D_Hair}
+        skeleton={nodes.Wolf3D_Hair.skeleton}
+      />
+      <skinnedMesh
+        name="EyeLeft"
+        geometry={nodes.EyeLeft.geometry}
+        material={materials.Wolf3D_Eye}
+        skeleton={nodes.EyeLeft.skeleton}
+        morphTargetDictionary={nodes.EyeLeft.morphTargetDictionary}
+        morphTargetInfluences={nodes.EyeLeft.morphTargetInfluences}
+      />
+      <skinnedMesh
+        name="EyeRight"
+        geometry={nodes.EyeRight.geometry}
+        material={materials.Wolf3D_Eye}
+        skeleton={nodes.EyeRight.skeleton}
+        morphTargetDictionary={nodes.EyeRight.morphTargetDictionary}
+        morphTargetInfluences={nodes.EyeRight.morphTargetInfluences}
+      />
+      <skinnedMesh
+        name="Wolf3D_Head"
+        geometry={nodes.Wolf3D_Head.geometry}
+        material={materials.Wolf3D_Skin}
+        skeleton={nodes.Wolf3D_Head.skeleton}
+        morphTargetDictionary={nodes.Wolf3D_Head.morphTargetDictionary}
+        morphTargetInfluences={nodes.Wolf3D_Head.morphTargetInfluences}
+      />
+      <skinnedMesh
+        name="Wolf3D_Teeth"
+        geometry={nodes.Wolf3D_Teeth.geometry}
+        material={materials.Wolf3D_Teeth}
+        skeleton={nodes.Wolf3D_Teeth.skeleton}
+        morphTargetDictionary={nodes.Wolf3D_Teeth.morphTargetDictionary}
+        morphTargetInfluences={nodes.Wolf3D_Teeth.morphTargetInfluences}
+      />
     </group>
   );
 });
 
-useGLTF.preload("/models/6823856055fa435d140c3f37 (1).glb");
+useGLTF.preload("/models/646d9dcdc8a5f5bddbfac913.glb");
