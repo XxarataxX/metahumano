@@ -24,7 +24,6 @@ const corresponding = {
 export const Avatar = forwardRef(({ preguntas, ...props }, ref) => {
   // Lista de todos los audios disponibles con sus respectivos lipsync
   const audioData = useMemo(() => ({
-
     aprove1: {
       audio: new Audio("/audios/aprove1.mp3"),
       lipsync: "/audios/aprove1.json"
@@ -70,25 +69,30 @@ export const Avatar = forwardRef(({ preguntas, ...props }, ref) => {
       lipsync: "/audios/equivocado3.json"
     },
     relleno1: {
-      audio: new Audio("/audios/relleno1.mp3"),
-      lipsync: "/audios/relleno1.json"
+      audio: new Audio("/audios/datocurioso.mp3"),
+      lipsync: "/audios/datocurioso1.json"
+    },
+    relleno2: {
+      audio: new Audio("/audios/datocurioso2.mp3"),
+      lipsync: "/audios/datocurioso2.json"
     }
   }), []);
 
   // Mapeo de audios a animaciones correspondientes
   const audioToAnimation = {
-    aprove1: "Clapping",
-    aprove2: "Acknowledging",
-    aprove3: "Salute",
+    aprove1: "PointForward",
+    aprove2: "ofensive",
+    aprove3: "Acknowledging",
     bienvenida2: "ThoughfulHeadShake",
     bienvenida3: "PointForward",
-    despedida1: "Defeated",
-    despedida2: "Defeat",
-    despedida3: "Surprised",
+    despedida1: "Salute",
+    despedida2: "Salute",
+    despedida3: "ofensive",
     equivocado1: "Angry2",
     equivocado2: "Angry2",
     equivocado3: "Yelling",
-    relleno1: "Surprised"
+    relleno1: "Acknowledging",
+    relleno2: "Acknowledging"
   };
 
   const [isPlaying, setIsPlaying] = useState(false);
@@ -96,8 +100,9 @@ export const Avatar = forwardRef(({ preguntas, ...props }, ref) => {
   const [currentLipsync, setCurrentLipsync] = useState(null);
   const [currentAudio, setCurrentAudio] = useState(null);
   const [hasPlayedWelcome, setHasPlayedWelcome] = useState(false);
-  const rellenoInterval = useRef(null);
-  
+  const [hasPlayedRelleno1, setHasPlayedRelleno1] = useState(false);
+  const [hasPlayedRelleno2, setHasPlayedRelleno2] = useState(false);
+  const rellenoTimeout = useRef(null);
 
   const playAudioWithAnimation = (audioKey) => {
     const audioInfo = audioData[audioKey];
@@ -127,10 +132,22 @@ export const Avatar = forwardRef(({ preguntas, ...props }, ref) => {
               setCurrentLipsync(null);
               setCurrentAudio(null);
               
-              // Esperar 2 segundos ANTES de marcar como reproducido
-              setTimeout(() => {
+              // Manejar los estados según qué audio acaba de terminar
+              if (audioKey === "bienvenida2" || audioKey === "bienvenida3") {
                 setHasPlayedWelcome(true);
-              }, 2000); // 2000 ms = 2 segundos
+                // Programar relleno1 después de 2 segundos
+                setTimeout(() => {
+                  playAudioWithAnimation("relleno1");
+                }, 2000);
+              } else if (audioKey === "relleno1") {
+                setHasPlayedRelleno1(true);
+                // Programar relleno2 después de 10 segundos
+                setTimeout(() => {
+                  playAudioWithAnimation("relleno2");
+                }, 10000);
+              } else if (audioKey === "relleno2") {
+                setHasPlayedRelleno2(true);
+              }
             };
           })
           .catch(error => {
@@ -142,31 +159,6 @@ export const Avatar = forwardRef(({ preguntas, ...props }, ref) => {
       });
   };
 
-  const startRellenoLoop = () => {
-    // Si ya hay preguntas, no iniciamos el loop
-    if (preguntas && preguntas.length > 0) return;
-    
-    // Reproducir el audio de relleno cada 10 segundos
-    rellenoInterval.current = setInterval(() => {
-      if (!isPlaying && hasPlayedWelcome) {
-        playAudioWithAnimation("relleno1");
-      }
-    }, 5000); // 10 segundos entre reproducciones
-    
-    // Primera reproducción inmediata después del welcome
-    if (hasPlayedWelcome) {
-      // playAudioWithAnimation("despedida3");
-      
-    }
-  };
-
-  const stopRellenoLoop = () => {
-    if (rellenoInterval.current) {
-      clearInterval(rellenoInterval.current);
-      rellenoInterval.current = null;
-    }
-  };
-
   useEffect(() => {
     // Reproducir solo el audio de bienvenida al inicio
     const timer = setTimeout(() => {
@@ -175,7 +167,9 @@ export const Avatar = forwardRef(({ preguntas, ...props }, ref) => {
 
     return () => {
       clearTimeout(timer);
-      stopRellenoLoop();
+      if (rellenoTimeout.current) {
+        clearTimeout(rellenoTimeout.current);
+      }
       Object.values(audioData).forEach(({audio}) => {
         audio.pause();
         audio.currentTime = 0;
@@ -183,17 +177,6 @@ export const Avatar = forwardRef(({ preguntas, ...props }, ref) => {
     };
   }, []);
 
-useEffect(() => {
-  if (hasPlayedWelcome) {
-    startRellenoLoop(); // Esto ya incluye la primera reproducción
-  }
-  
-  if (preguntas?.length > 0) {
-    stopRellenoLoop();
-  }
-  
-  return () => stopRellenoLoop();
-}, [hasPlayedWelcome, preguntas]);
   const {
     headFollow,
     smoothMorphTarget,
@@ -296,34 +279,8 @@ useEffect(() => {
     }
   });
 
-  // useEffect(() => {
-  //   nodes.Wolf3D_Head.morphTargetInfluences[
-  //     nodes.Wolf3D_Head.morphTargetDictionary["viseme_I"]
-  //   ] = 1;
-  //   nodes.Wolf3D_Teeth.morphTargetInfluences[
-  //     nodes.Wolf3D_Teeth.morphTargetDictionary["viseme_I"]
-  //   ] = 1;
-  //   if (playAudio) {
-  //     audio.play();
-  //     if (script === "welcome") {
-  //       setAnimation("Greeting");
-  //     } else {
-  //       setAnimation("Angry");
-  //     }
-  //   } else {
-  //     setAnimation("Idle");
-  //     audio.pause();
-  //   }
-  // }, [playAudio, script]);
-
-  // const { nodes, materials } = useGLTF("/models/646d9dcdc8a5f5bddbfac913.glb");
-  // const { nodes, materials } = useGLTF("/models/6823b9533c5ab94b9e566250.glb");
   const { nodes, materials } = useGLTF("/models/formal1.glb");
-  //const { animations: idleAnimation } = useFBX("/animations/Defeated (1).fbx");
   const { animations: idleAnimation } = useFBX("/animations/Idle (1).fbx");
-  // const { animations: angryAnimation } = useFBX("/animations/Angry Gesture.fbx");
-  // const { animations: greetingAnimation } = useFBX("/animations/Standing Greeting.fbx");
-
   const { animations: AcknowledgingAnimation } = useFBX("/animations/Acknowledging.fbx");
   const { animations: Angry2Animation } = useFBX("/animations/Angry.fbx");
   const { animations: ClappingAnimation } = useFBX("/animations/Clapping.fbx");
@@ -339,8 +296,6 @@ useEffect(() => {
 
   // Asignar nombres a las animaciones
   idleAnimation[0].name = "Idle";
-  // angryAnimation[0].name = "Angry";
-  // greetingAnimation[0].name = "Greeting";
   AcknowledgingAnimation[0].name = "Acknowledging";
   Angry2Animation[0].name = "Angry2";
   ClappingAnimation[0].name = "Clapping";
@@ -358,8 +313,6 @@ useEffect(() => {
   const { actions } = useAnimations(
     [
       idleAnimation[0], 
-      // angryAnimation[0], 
-      // greetingAnimation[0],
       AcknowledgingAnimation[0],
       Angry2Animation[0],
       ClappingAnimation[0],
@@ -380,23 +333,19 @@ useEffect(() => {
     playAudioWithAnimation
   }));
 
-useEffect(() => {
-  if (!actions[animation] || !group.current) return;
+  useEffect(() => {
+    if (!actions[animation] || !group.current) return;
 
-  // 🔁 Aplicar rotación solo si NO es la animación "Idle"
-  if (animation !== "Idle") {
-    group.current.rotation.set(-Math.PI / 2, 0, 0);
-  } else {
-    // Resetear la rotación para Idle
-    group.current.rotation.set(-Math.PI / 2, 0, 0);
-  }
+    if (animation !== "Idle") {
+      group.current.rotation.set(-Math.PI / 2, 0, 0);
+    } else {
+      group.current.rotation.set(-Math.PI / 2, 0, 0);
+    }
 
-  actions[animation].reset().fadeIn(0.5).play();
-  return () => actions[animation].fadeOut(0.5);
-}, [animation]);
+    actions[animation].reset().fadeIn(0.5).play();
+    return () => actions[animation].fadeOut(0.5);
+  }, [animation]);
   
-  
-
   useFrame((state) => {
     if (headFollow) {
       group.current.getObjectByName("Head").lookAt(state.camera.position);
@@ -411,10 +360,6 @@ useEffect(() => {
     A: ${primera.incisos.A}, 
     B: ${primera.incisos.B}, 
     C: ${primera.incisos.C}.`;
-
-    // const speech = new SpeechSynthesisUtterance(texto);
-    // speech.lang = "es-ES";
-    // window.speechSynthesis.speak(speech);
 
     setAnimation("Idle");
   }, [preguntas]);
