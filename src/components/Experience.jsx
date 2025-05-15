@@ -11,7 +11,7 @@ const texture = useTexture("textures/class.png");
   return (
     <>
       <OrbitControls />
-      <Avatar position={[0, -3, 5]} scale={2} preguntas={preguntas} ref={ref} />
+      <Avatar position={[0, -3, 4.5]} scale={2} preguntas={preguntas} ref={ref} />
       <Environment preset="sunset" />
       <mesh>
         <planeGeometry args={[viewport.width, viewport.height]} />

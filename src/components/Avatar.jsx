@@ -155,7 +155,8 @@ export const Avatar = forwardRef(({ preguntas, ...props }, ref) => {
     
     // Primera reproducción inmediata después del welcome
     if (hasPlayedWelcome) {
-      playAudioWithAnimation("relleno1");
+      // playAudioWithAnimation("despedida3");
+      
     }
   };
 
@@ -411,9 +412,9 @@ useEffect(() => {
     B: ${primera.incisos.B}, 
     C: ${primera.incisos.C}.`;
 
-    const speech = new SpeechSynthesisUtterance(texto);
-    speech.lang = "es-ES";
-    window.speechSynthesis.speak(speech);
+    // const speech = new SpeechSynthesisUtterance(texto);
+    // speech.lang = "es-ES";
+    // window.speechSynthesis.speak(speech);
 
     setAnimation("Idle");
   }, [preguntas]);

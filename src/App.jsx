@@ -72,7 +72,7 @@ useEffect(() => {
 
   console.log("Iniciando solicitud a la API..."); // 1. Log cuando comienza la solicitud
 
-  fetch("http://192.168.1.99:8000/generate_question/", {
+  fetch("http://192.168.1.154:8000/generate_question/", {
     method: "POST",
     headers: {
       "Content-Type": "application/json",
@@ -278,7 +278,7 @@ useEffect(() => {
           maxWidth: "400px",
         }}
       >
-        <SelectorVoz />
+        
 {cargandoInicio && preguntas.length === 0 ? (
   <div
     style={{
@@ -391,7 +391,7 @@ useEffect(() => {
         setMostrarResultados(false);
 
         try {
-          const res = await fetch("http://192.168.1.99:8000/generate_followup_questions/", {
+          const res = await fetch("http://192.168.1.154:8000/generate_followup_questions/", {
             method: "POST",
             headers: {
               "Content-Type": "application/json",
