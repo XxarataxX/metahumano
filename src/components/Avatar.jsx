@@ -85,6 +85,7 @@ export const Avatar = forwardRef(({ preguntas, ...props }, ref) => {
     despedida1: "Defeated",
     despedida2: "Defeat",
     despedida3: "Surprised",
+    equivocado1: "Angry2",
     equivocado2: "Angry2",
     equivocado3: "Yelling",
     relleno1: "Surprised"
@@ -414,7 +415,7 @@ useEffect(() => {
     speech.lang = "es-ES";
     window.speechSynthesis.speak(speech);
 
-    setAnimation("Greeting");
+    setAnimation("Idle");
   }, [preguntas]);
 
   return (
