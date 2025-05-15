@@ -14,7 +14,7 @@ const corresponding = {
   B: "viseme_kk",
   C: "viseme_I",
   D: "viseme_AA",
-  E: "viseme_O",
+  E: "viseme_O", 
   F: "viseme_U",
   G: "viseme_FF",
   H: "viseme_TH",
@@ -90,7 +90,7 @@ export const Avatar = forwardRef(({ preguntas, ...props }, ref) => {
     despedida3: "ofensive",
     equivocado1: "Angry2",
     equivocado2: "Angry2",
-    equivocado3: "Yelling",
+    equivocado3: "ofensive",
     relleno1: "Acknowledging",
     relleno2: "Acknowledging"
   };
@@ -134,19 +134,11 @@ export const Avatar = forwardRef(({ preguntas, ...props }, ref) => {
               
               // Manejar los estados según qué audio acaba de terminar
               if (audioKey === "bienvenida2" || audioKey === "bienvenida3") {
-                setHasPlayedWelcome(true);
-                // Programar relleno1 después de 2 segundos
-                setTimeout(() => {
-                  playAudioWithAnimation("relleno1");
-                }, 2000);
+                setTimeout(() => playAudioWithAnimation("relleno1"), 2000);
               } else if (audioKey === "relleno1") {
-                setHasPlayedRelleno1(true);
-                // Programar relleno2 después de 10 segundos
-                setTimeout(() => {
-                  playAudioWithAnimation("relleno2");
-                }, 10000);
-              } else if (audioKey === "relleno2") {
-                setHasPlayedRelleno2(true);
+                if (props.onAudiosCompletados) {
+                  props.onAudiosCompletados();
+                }
               }
             };
           })

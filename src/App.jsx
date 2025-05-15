@@ -13,6 +13,8 @@ function App() {
   const [cargando, setCargando] = useState(false);
   const [finalizado, setFinalizado] = useState(false);
   const [seguimientoGenerado, setSeguimientoGenerado] = useState(false);
+  const [audiosInicialesCompletos, setAudiosInicialesCompletos] = useState(false);
+  
 
   const [matricula, setMatricula] = useState("");
 const [iniciado, setIniciado] = useState(false);
@@ -63,7 +65,7 @@ useEffect(() => {
     } else {
       setMostrarResultados(true);
     }
-  }, 1000); // Delay de 2 segundos para ver el feedback
+  }, 10000); // Delay de 2 segundos para ver el feedback
 };
 
 useEffect(() => {
@@ -72,7 +74,7 @@ useEffect(() => {
 
   console.log("Iniciando solicitud a la API...");
 
-  const url = new URL("http://192.168.1.154:8000/api/banco/obtener");
+  const url = new URL("http://192.168.100.93:8000/api/banco/obtener");
   const params = {
     cantidad: 3,
     grado: 3,
@@ -337,14 +339,13 @@ useEffect(() => {
   </div>
 ) : (
   
-  preguntas.length > 0 && !mostrarResultados && !cargando && !cargandoInicio && (
-
-    <QuestionCard
-      pregunta={preguntas[preguntaActual]}
-      index={preguntaActual}
-      onResponder={manejarRespuesta}
-    />
-  )
+ preguntas.length > 0 && audiosInicialesCompletos && !mostrarResultados && (
+  <QuestionCard
+    pregunta={preguntas[preguntaActual]}
+    index={preguntaActual}
+    onResponder={manejarRespuesta}
+  />
+)
 )}
 
 
@@ -511,7 +512,11 @@ useEffect(() => {
       {/* Canvas 3D */}
       <Canvas shadows camera={{ position: [0, 0, 8], fov: 42 }}>
         <color attach="background" args={["#ececec"]} />
-        <Experience preguntas={preguntas} ref={experienceRef} />
+         <Experience 
+            ref={experienceRef}
+            preguntas={preguntas}
+            onAudiosCompletados={() => setAudiosInicialesCompletos(true)}
+          />
       </Canvas>
     </div>
   );
