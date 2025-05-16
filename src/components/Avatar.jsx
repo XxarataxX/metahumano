@@ -169,15 +169,10 @@ export const Avatar = forwardRef(({ preguntas, ...props }, ref) => {
     };
   }, []);
 
-  const {
-    headFollow,
-    smoothMorphTarget,
-    morphTargetSmoothing,
-  } = useControls({
-    headFollow: true,
-    smoothMorphTarget: true,
-    morphTargetSmoothing: 0.5,
-  });
+  const headFollow = true;          // Seguir cámara con la cabeza
+const smoothMorphTarget = true;   // Suavizado de animaciones faciales
+const morphTargetSmoothing = 0.5; 
+
 
   useFrame(() => {
     if (!isPlaying || !currentAudio || !currentLipsync) return;

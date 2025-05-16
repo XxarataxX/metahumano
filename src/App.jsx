@@ -576,7 +576,7 @@ function App() {
 
 
       {/* Canvas 3D */}
-      <Canvas shadows camera={{ position: [0, 0, 8], fov: 42 }}>
+      <Canvas shadows camera={{ position: [0, 0, 13], fov: 42 }}>
         <color attach="background" args={["#ececec"]} />
          <Experience 
             ref={experienceRef}
