@@ -1,6 +1,7 @@
 import React, { useEffect, useState } from "react";
 
-const QuestionCard = ({ pregunta, index, onResponder }) => {
+const QuestionCard = ({ pregunta, index, onResponder, onRelacionadaGenerada }) => {
+
   const [seleccion, setSeleccion] = useState(null);
   const [resultado, setResultado] = useState(null);
   const [respondida, setRespondida] = useState(false);
@@ -13,21 +14,32 @@ const QuestionCard = ({ pregunta, index, onResponder }) => {
     setRespondida(false);
     setPuedeContinuar(false);
   }, [pregunta]);
-const verificarRespuesta = (opcion) => {
-  if (respondida) return;
-
-  setSeleccion(opcion);
-  const esCorrecta = opcion === pregunta.respuesta_correcta;
-  setResultado(esCorrecta ? "correcto" : "incorrecto");
-  setRespondida(true);
+  const verificarRespuesta = async (opcion) => {
+    if (respondida) return;
   
-  // 🔥 Envía la respuesta al padre para feedback INMEDIATO (sonido/animación)
-  onResponder(opcion);
+    setSeleccion(opcion);
+    const esCorrecta = opcion === pregunta.respuesta_correcta;
+    setResultado(esCorrecta ? "correcto" : "incorrecto");
+    setRespondida(true);
   
-  setTimeout(() => {
-    setPuedeContinuar(true);
-  }, 2000);
-};
+    onResponder(opcion); // feedback inmediato
+  
+    // Si es incorrecta, pide pregunta relacionada y notifícalo al padre
+    if (!esCorrecta) {
+      const relacionada = await enviarPreguntaRelacionada(pregunta);
+      if (relacionada) {
+        console.log("🧪 Callback onRelacionadaGenerada existe:", typeof onRelacionadaGenerada);
+        if (typeof onRelacionadaGenerada === "function") {
+          onRelacionadaGenerada(relacionada);
+        }
+      }
+    }
+    
+    setTimeout(() => {
+      setPuedeContinuar(true);
+    }, 2000);
+  };
+  
 
 const siguientePregunta = () => {
   if (respondida) {
@@ -35,14 +47,39 @@ const siguientePregunta = () => {
   }
 };
 
+const enviarPreguntaRelacionada = async (pregunta) => {
+  try {
+    const res = await fetch("http://localhost:8000/pregunta_relacionada/", {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({
+        pregunta: pregunta.pregunta,
+        incisos: pregunta.incisos,
+        respuesta_correcta: pregunta.respuesta_correcta,
+        explicacion: pregunta.explicacion
+      }),
+    });
+
+    const data = await res.json();
+    console.log("✅ Pregunta relacionada generada:", data.pregunta_generada);
+    return data.pregunta_generada;
+  } catch (error) {
+    console.error("❌ Error al generar pregunta relacionada:", error);
+    return null;
+  }
+};
+
+
   return (
-    <div style={{
-      background: "#fff",
-      borderRadius: "10px",
-      boxShadow: "0 4px 8px rgba(0,0,0,0.2)",
-      padding: "1rem",
-      fontFamily: "sans-serif"
-    }}>
+<div style={{
+  background: "rgba(255, 255, 255, 0.5)",
+  backdropFilter: "blur(10px)",
+  WebkitBackdropFilter: "blur(10px)",
+  borderRadius: "10px",
+  boxShadow: "0 4px 8px rgba(0,0,0,0.2)",
+  padding: "1rem",
+  fontFamily: "sans-serif"
+}}>
       <h3>Pregunta {index + 1}</h3>
       <p><strong>{pregunta.pregunta}</strong></p>
       <ul style={{ listStyle: "none", paddingLeft: 0 }}>
