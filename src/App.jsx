@@ -13,6 +13,7 @@ function App() {
   const [cargando, setCargando] = useState(false);
   const [finalizado, setFinalizado] = useState(false);
   const [seguimientoGenerado, setSeguimientoGenerado] = useState(false);
+  const [audiosInicialesCompletos, setAudiosInicialesCompletos] = useState(false);
   
 
   const [matricula, setMatricula] = useState("");
@@ -58,14 +59,14 @@ function App() {
       },
     ]);
 
-    setTimeout(() => {
-      if (preguntaActual + 1 < preguntas.length) {
-        setPreguntaActual(preguntaActual + 1);
-      } else {
-        setMostrarResultados(true);
-      }
-    }, 1000); // Delay de 2 segundos para ver el feedback
-  };
+  setTimeout(() => {
+    if (preguntaActual + 1 < preguntas.length) {
+      setPreguntaActual(preguntaActual + 1);
+    } else {
+      setMostrarResultados(true);
+    }
+  }, 10000); // Delay de 2 segundos para ver el feedback
+};
 
   useEffect(() => {
     if (hasFetched.current) return;
@@ -364,19 +365,18 @@ function App() {
           </div>
         ) : (
 
-          preguntas.length > 0 && !mostrarResultados && !cargando && !cargandoInicio && (
-
-            <QuestionCard
-              pregunta={preguntas[preguntaActual]}
-              index={preguntaActual}
-              onResponder={manejarRespuesta}
+         preguntas.length > 0 && audiosInicialesCompletos && !mostrarResultados && !cargando && !cargandoInicio && (
+          <QuestionCard
+            pregunta={preguntas[preguntaActual]}
+            index={preguntaActual}
+            onResponder={manejarRespuesta}
               onRelacionadaGenerada={(nuevaPregunta) => {
                 setPreguntasRelacionadas((prev) => [...prev, nuevaPregunta]);
                 console.log("🔁 Pregunta relacionada guardada:", nuevaPregunta);
               }}
-            />
+          />
 
-          )
+        )
         )}
 
 
@@ -578,7 +578,11 @@ function App() {
       {/* Canvas 3D */}
       <Canvas shadows camera={{ position: [0, 0, 8], fov: 42 }}>
         <color attach="background" args={["#ececec"]} />
-        <Experience preguntas={preguntas} ref={experienceRef} />
+         <Experience 
+            ref={experienceRef}
+            preguntas={preguntas}
+            onAudiosCompletados={() => setAudiosInicialesCompletos(true)}
+          />
       </Canvas>
     </div>
   );
