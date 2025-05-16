@@ -11,7 +11,7 @@ export const Experience = forwardRef(({ preguntas, onAudiosCompletados }, ref) =
     <>
       <OrbitControls />
       <Avatar 
-        position={[0, -3, 4.5]} 
+        position={[0, -3, 4]} 
         scale={2} 
         preguntas={preguntas} 
         ref={ref} 

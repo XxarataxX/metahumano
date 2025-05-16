@@ -61,10 +61,43 @@ const enviarPreguntaRelacionada = async (pregunta) => {
     });
 
     const data = await res.json();
-    console.log("✅ Pregunta relacionada generada:", data.pregunta_generada);
-    return data.pregunta_generada;
+
+    // Si la API retorna una pregunta relacionada válida
+    if (data?.pregunta_generada) {
+      console.log("✅ Pregunta relacionada generada:", data.pregunta_generada);
+      return data.pregunta_generada;
+    }
+
+    // Si no se generó, fallback a una aleatoria
+    console.warn("⚠️ Pregunta relacionada no disponible, generando una aleatoria...");
+    const fallback = await fetch("http://localhost:8000/preguntas_aleatorias/?cantidad=1");
+    const fallbackData = await fallback.json();
+
+    if (fallbackData?.preguntas?.length > 0) {
+      const p = fallbackData.preguntas[0];
+      const incisos = {};
+      p.opciones.forEach((opcion, index) => {
+        const letra = String.fromCharCode(65 + index); // "A", "B", "C", ...
+        incisos[letra] = opcion;
+      });
+
+      const adaptada = {
+        pregunta: p.pregunta,
+        incisos,
+        respuesta_correcta: Object.entries(incisos).find(
+          ([_, texto]) => texto === p.respuesta_correcta
+        )?.[0] || "A",
+        explicacion: p.feedback,
+      };
+
+      console.log("🆗 Pregunta aleatoria adaptada como fallback:", adaptada);
+      return adaptada;
+    }
+
+    console.error("❌ No se pudo obtener ninguna pregunta aleatoria como fallback.");
+    return null;
   } catch (error) {
-    console.error("❌ Error al generar pregunta relacionada:", error);
+    console.error("❌ Error total al generar pregunta relacionada o fallback:", error);
     return null;
   }
 };

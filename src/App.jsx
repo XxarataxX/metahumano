@@ -65,7 +65,7 @@ function App() {
     } else {
       setMostrarResultados(true);
     }
-  }, 10000); // Delay de 2 segundos para ver el feedback
+  }, 4000); // Delay de 2 segundos para ver el feedback
 };
 
   useEffect(() => {
@@ -524,7 +524,7 @@ function App() {
 >
   {preguntasRelacionadas.length >= respuestas.filter((r) => !r.correcta).length
     ? "🔄 Continuar práctica"
-    : `⚠️ Genera ${respuestas.filter((r) => !r.correcta).length - preguntasRelacionadas.length
+    : ` Estoy creando mas preguntas
       } preguntas más`}
 </button>
 
